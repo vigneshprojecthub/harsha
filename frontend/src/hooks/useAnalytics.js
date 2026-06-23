@@ -31,7 +31,7 @@ export function useAnalytics() {
       // Send each event (could batch in production)
       await Promise.all(
         batch.map(ev =>
-          axios.post('/api/analytics/event', ev).catch(() => { /* silent */ })
+          axios.post(`${import.meta.env.VITE_API_URL}/api/analytics/event`, ev).catch(() => { /* silent */ })
         )
       )
     } finally {
@@ -54,7 +54,7 @@ export function useAnalytics() {
 
 // Standalone helper for use outside of React components
 export function trackEvent(eventType, props = {}) {
-  axios.post('/api/analytics/event', {
+  axios.post(`${import.meta.env.VITE_API_URL}/api/analytics/event`, {
     event_type: eventType,
     session_id: getSessionId(),
     ...props,

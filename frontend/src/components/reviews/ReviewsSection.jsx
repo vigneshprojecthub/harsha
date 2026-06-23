@@ -118,7 +118,7 @@ function ReviewForm({ productId, onSubmitted }) {
     setError('')
     setSubmitting(true)
     try {
-      const { data } = await axios.post('/api/reviews', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/reviews`, {
         ...form,
         product_id: productId || null,
       })

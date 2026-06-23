@@ -46,7 +46,7 @@ function CouponsTab() {
         uses_per_user: parseInt(form.uses_per_user || 1),
         valid_until: form.valid_until || null,
       }
-      await axios.post('/api/coupons', payload)
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/coupons`, payload)
       setShowForm(false)
       setForm({ code:'',description:'',discount_type:'percent',discount_value:'',min_order_value:'0',max_discount:'',max_uses:'',valid_until:'',campaign:'',uses_per_user:'1' })
       load()

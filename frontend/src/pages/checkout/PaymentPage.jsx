@@ -70,7 +70,7 @@ export default function PaymentPage() {
       handler: async (response) => {
         setStatus('verifying')
         try {
-          const { data } = await axios.post('/api/checkout/verify-payment', {
+          const { data } = await axios.post('${import.meta.env.VITE_API_URL}/api/checkout/verify-payment', {
             razorpay_order_id:   response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_signature:  response.razorpay_signature,
@@ -96,7 +96,7 @@ export default function PaymentPage() {
   const handleDemoSuccess = async () => {
     setStatus('verifying')
     try {
-      const { data } = await axios.post('/api/checkout/verify-payment', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/checkout/verify-payment`, {
         razorpay_order_id:   checkoutData.razorpay_order_id,
         razorpay_payment_id: `demo_pay_${Date.now()}`,
         razorpay_signature:  'demo_signature',

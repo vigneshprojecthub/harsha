@@ -14,7 +14,7 @@ export default function CouponInput({ orderValue, phone, onApply }) {
     setLoading(true)
     setResult(null)
     try {
-      const { data } = await axios.post('/api/coupons/validate', {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/coupons/validate`, {
         code:        code.trim().toUpperCase(),
         order_value: orderValue,
         phone:       phone || null,
