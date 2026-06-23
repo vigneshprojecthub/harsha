@@ -1,16 +1,31 @@
-fastapi==0.111.0
-uvicorn[standard]==0.29.0
-sqlalchemy==2.0.30
-psycopg2-binary==2.9.9
-pydantic==2.7.1
-pydantic-settings==2.2.1
-python-multipart==0.0.9
-pillow==10.3.0
-alembic==1.13.1
-httpx==0.27.0
-replicate==0.29.0
-razorpay==1.4.1
-reportlab==4.2.0
-websockets==12.0
-httpx==0.27.0
-cloudinary==1.40.0
+# Core framework
+fastapi>=0.110.0,<0.115.0
+uvicorn[standard]>=0.29.0
+anyio>=3.7.0
+
+# Database
+sqlalchemy>=2.0.0,<2.1.0
+psycopg2-binary>=2.9.0
+alembic>=1.13.0
+
+# Validation
+pydantic>=2.6.0,<2.8.0
+pydantic-settings>=2.2.0
+
+# File uploads
+python-multipart>=0.0.9
+pillow>=10.0.0
+
+# HTTP client
+httpx>=0.27.0
+
+# AI / Integrations
+replicate>=0.25.0
+razorpay>=1.4.0
+cloudinary>=1.36.0
+
+# PDF generation
+reportlab>=4.0.0
+
+# WebSockets
+websockets>=11.0

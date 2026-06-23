@@ -2,33 +2,27 @@ services:
   - type: web
     name: harsha-gallery-api
     runtime: python
-    region: singapore   # closest to India
+    region: singapore
     plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
+    pythonVersion: "3.11.9"
 
     envVars:
-      # Database (Neon)
       - key: DATABASE_URL
-        sync: false   # set manually in Render dashboard
-
-      # File Storage (Cloudinary)
+        sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-
-      # Razorpay
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
-
-      # Email (Gmail App Password)
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
@@ -39,8 +33,6 @@ services:
         sync: false
       - key: FROM_EMAIL
         sync: false
-
-      # WhatsApp
       - key: WHATSAPP_NUMBER
         sync: false
       - key: WHATSAPP_API_TOKEN
@@ -49,23 +41,15 @@ services:
         sync: false
       - key: WHATSAPP_VERIFY_TOKEN
         value: harsha_gallery_verify_2025
-
-      # AI / Replicate
       - key: REPLICATE_API_TOKEN
         sync: false
-
-      # Instagram
       - key: INSTAGRAM_ACCESS_TOKEN
         sync: false
       - key: INSTAGRAM_BUSINESS_ID
         sync: false
-
-      # App URLs
       - key: PUBLIC_BASE_URL
-        sync: false   # e.g. https://harsha-gallery-api.onrender.com
+        sync: false
       - key: PUBLIC_FRONTEND_URL
-        sync: false   # e.g. https://harsha-gallery.vercel.app
-
-      # Uploads (keep for local fallback)
+        sync: false
       - key: UPLOAD_DIR
         value: uploads
