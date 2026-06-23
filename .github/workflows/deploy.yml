@@ -1,0 +1,78 @@
+name: Deploy Harsha Art Gallery
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend Tests ────────────────────────────────────────────────────────────
+  test-backend:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest httpx
+
+      - name: Run syntax check
+        run: python -m py_compile main.py && echo "✓ main.py OK"
+
+      - name: Check imports
+        run: |
+          python -c "from core.config import settings; print('✓ config OK')"
+          python -c "from models.models import Product, Category; print('✓ models OK')"
+          python -c "from schemas.schemas import ProductOut; print('✓ schemas OK')"
+
+  # ── Frontend Build ────────────────────────────────────────────────────────────
+  build-frontend:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: https://harsha-gallery-api.onrender.com
+          VITE_WS_URL:  wss://harsha-gallery-api.onrender.com
+
+      - name: Check build output
+        run: ls -lh dist/
+
+  # ── Notify on success ─────────────────────────────────────────────────────────
+  notify:
+    name: Notify
+    needs: [test-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - name: Success
+        run: echo "✅ All checks passed — Render and Vercel will auto-deploy from main."
