@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
     WHATSAPP_NUMBER: str = "919344946069"  # Replace with actual number
-    REPLICATE_API_TOKEN: str = os.getenv("REPLICATE_API_TOKEN")        # Get from replicate.com/account
+    REPLICATE_API_TOKEN: str = ""       # Get from replicate.com/account
     PUBLIC_BASE_URL: str = "http://localhost:8000"  # Used for Replicate to fetch images
 
     model_config = SettingsConfigDict(
