@@ -9,6 +9,11 @@ logger = logging.getLogger(__name__)
 # ── App setup FIRST (before DB) so /health always responds ───────────────────
 app = FastAPI(title="Harsha Art Gallery API", version="1.0.0")
 
+origins = [
+    "http://localhost:5173",
+    "https://harsha-three-khaki.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],   # tighten after confirming frontend URL
