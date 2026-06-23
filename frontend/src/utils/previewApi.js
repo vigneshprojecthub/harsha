@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const api = axios.create({ baseURL: '/api', timeout: 15000 })
+const api = axios.create({ baseURL: `${API_URL}/api`, timeout: 15000 })
 
 export const previewApi = {
   /** Upload garment + optional reference → kicks off generation */
