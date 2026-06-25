@@ -60,3 +60,22 @@
   background: #c8860f;
   border-radius: 3px;
 }
+
+/* Hide scrollbar for horizontal scroll rows (Netflix style) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safe area bottom padding for iPhone home indicator */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Dark scrollbar for dark sections */
+.dark-scroll::-webkit-scrollbar-track {
+  background: #1a1510;
+}

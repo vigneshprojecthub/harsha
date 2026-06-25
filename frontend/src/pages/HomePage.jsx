@@ -4,23 +4,24 @@ import FeaturedProducts from '../components/landing/FeaturedProducts'
 import AIPreviewBanner from '../components/landing/AIPreviewBanner'
 import CategoriesSection from '../components/landing/CategoriesSection'
 import WhyChooseUs from '../components/landing/WhyChooseUs'
-import CTABanner from '../components/landing/CTABanner'
 import ReviewsSection from '../components/reviews/ReviewsSection'
 import InstagramFeed from '../components/social/InstagramFeed'
-import FAQSection from '../components/landing/FAQSection'
 
 export default function HomePage() {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="bg-charcoal-900 min-h-screen">
+      {/* Compact hero — no full-screen scroll trap */}
       <HeroSection />
-      <FeaturedProducts />
-      <AIPreviewBanner />
-      <CategoriesSection />
-      <WhyChooseUs />
-      <CTABanner />
-      <ReviewsSection showForm={true} title="What Our Customers Say" />
-      <InstagramFeed limit={9} showHeader={true} />
-      <FAQSection />
+      {/* Horizontal scroll rows — Netflix style */}
+      <div className="space-y-2 pb-24 md:pb-8">
+        <CategoriesSection />
+        <FeaturedProducts />
+        <AIPreviewBanner />
+        <WhyChooseUs />
+        <ReviewsSection showForm={false} title="Customer Reviews" />
+        <InstagramFeed limit={6} showHeader={false} />
+      </div>
     </motion.div>
   )
 }

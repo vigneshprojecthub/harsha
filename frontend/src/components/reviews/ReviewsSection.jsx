@@ -1,279 +1,160 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Star, Camera, Loader2, CheckCircle, X, Upload } from 'lucide-react'
+import { Star, CheckCircle, X, Upload, Loader2 } from 'lucide-react'
 import axios from 'axios'
 
-// ── Star Rating Input ─────────────────────────────────────────────────────────
 function StarInput({ value, onChange }) {
   const [hover, setHover] = useState(0)
   return (
     <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map(n => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange(n)}
-          onMouseEnter={() => setHover(n)}
-          onMouseLeave={() => setHover(0)}
-        >
-          <Star
-            size={28}
-            className={`transition-all duration-100 ${
-              n <= (hover || value)
-                ? 'text-gold-500 fill-gold-500 scale-110'
-                : 'text-gray-200 fill-gray-200'
-            }`}
-          />
+      {[1,2,3,4,5].map(n => (
+        <button key={n} type="button" onClick={() => onChange(n)}
+          onMouseEnter={() => setHover(n)} onMouseLeave={() => setHover(0)}>
+          <Star size={24} className={`transition-all ${n <= (hover||value) ? 'text-gold-500 fill-gold-500 scale-110' : 'text-gray-600 fill-gray-600'}`} />
         </button>
       ))}
     </div>
   )
 }
 
-// ── Single Review Card ─────────────────────────────────────────────────────────
-function ReviewCard({ review, delay = 0 }) {
-  const [lightbox, setLightbox] = useState(null)
+function ReviewCard({ review, index }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay }}
-      className="bg-white rounded-2xl border border-ivory-200 p-6 shadow-sm"
-    >
-      <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full bg-gold-gradient flex items-center justify-center text-white font-display font-bold text-sm flex-shrink-0">
+    <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }} transition={{ delay: index * 0.06 }}
+      className="flex-shrink-0 w-64 sm:w-72 md:w-auto bg-charcoal-800/60 border border-white/5
+        rounded-xl p-4 flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-full bg-gold-gradient flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
           {review.reviewer_name.charAt(0).toUpperCase()}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-body font-semibold text-charcoal-800 text-sm">{review.reviewer_name}</span>
-            {review.is_verified && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] font-body bg-green-50 text-green-700 border border-green-200 px-1.5 py-0.5 rounded-full">
-                <CheckCircle size={9} />Verified
-              </span>
-            )}
+        <div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-body font-semibold text-white text-sm">{review.reviewer_name}</span>
+            {review.is_verified && <CheckCircle size={11} className="text-green-400" />}
           </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            {Array(5).fill(0).map((_, i) => (
-              <Star key={i} size={11} className={i < review.rating ? 'text-gold-500 fill-gold-500' : 'text-gray-200 fill-gray-200'} />
+          <div className="flex">
+            {Array(5).fill(0).map((_,i) => (
+              <Star key={i} size={10} className={i < review.rating ? 'text-gold-500 fill-gold-500' : 'text-gray-600 fill-gray-600'} />
             ))}
-            <span className="font-body text-xs text-charcoal-800/30 ml-1">
-              {new Date(review.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-            </span>
           </div>
         </div>
       </div>
-
-      {review.title && (
-        <div className="font-body font-semibold text-charcoal-800 text-sm mb-1">{review.title}</div>
-      )}
-      {review.body && (
-        <p className="font-body text-charcoal-800/60 text-sm leading-relaxed mb-3">
-          "{review.body}"
-        </p>
-      )}
-
-      {review.photos?.length > 0 && (
-        <div className="flex gap-2 flex-wrap">
-          {review.photos.map((ph, i) => (
-            <button key={i} onClick={() => setLightbox(ph)}
-              className="w-16 h-16 rounded-xl overflow-hidden border border-ivory-200 hover:opacity-90 transition-opacity">
-              <img src={ph} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
-
-      <AnimatePresence>
-        {lightbox && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightbox(null)}>
-            <button className="absolute top-4 right-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white">
-              <X size={18} />
-            </button>
-            <img src={lightbox} className="max-w-full max-h-[88vh] rounded-xl" onClick={e => e.stopPropagation()} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {review.body && <p className="font-body text-ivory-300/60 text-xs leading-relaxed line-clamp-3">"{review.body}"</p>}
     </motion.div>
   )
 }
 
-// ── Review Submission Form ────────────────────────────────────────────────────
-function ReviewForm({ productId, onSubmitted }) {
-  const [form, setForm] = useState({ reviewer_name: '', rating: 0, title: '', body: '' })
-  const [photoFile, setPhotoFile] = useState(null)
+function ReviewFormModal({ onClose, onSubmitted }) {
+  const [form, setForm] = useState({ reviewer_name: '', rating: 0, body: '' })
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
-  const [savedId, setSavedId] = useState(null)
-  const [error, setError] = useState('')
-
-  const set = f => e => setForm(p => ({ ...p, [f]: e.target.value }))
 
   const submit = async (e) => {
     e.preventDefault()
-    if (!form.rating) { setError('Please select a star rating'); return }
-    if (!form.reviewer_name.trim()) { setError('Please enter your name'); return }
-    setError('')
+    if (!form.rating || !form.reviewer_name.trim()) return
     setSubmitting(true)
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/reviews`, {
-        ...form,
-        product_id: productId || null,
-      })
-      setSavedId(data.id)
-
-      if (photoFile) {
-        const fd = new FormData()
-        fd.append('file', photoFile)
-        await axios.post(`/api/reviews/${data.id}/photos`, fd)
-      }
-
+      await axios.post('/api/reviews', form)
       setDone(true)
-      onSubmitted?.()
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to submit review')
-    } finally {
-      setSubmitting(false)
-    }
+      setTimeout(() => { onClose(); onSubmitted?.() }, 1500)
+    } catch { /* silent */ } finally { setSubmitting(false) }
   }
 
-  if (done) return (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-      className="text-center py-10">
-      <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-        <CheckCircle size={32} className="text-green-600" />
-      </div>
-      <h3 className="font-display text-xl font-bold text-charcoal-800 mb-2">Thank you!</h3>
-      <p className="font-body text-charcoal-800/50 text-sm">Your review has been submitted for moderation.</p>
-    </motion.div>
-  )
-
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div>
-        <label className="block font-body text-sm font-semibold text-charcoal-800 mb-2">Your Rating *</label>
-        <StarInput value={form.rating} onChange={r => setForm(p => ({ ...p, rating: r }))} />
-      </div>
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block font-body text-xs font-semibold text-charcoal-800/50 mb-1.5">Your Name *</label>
-          <input value={form.reviewer_name} onChange={set('reviewer_name')} placeholder="Priya Sharma" required
-            className="w-full px-4 py-2.5 border border-ivory-300 rounded-xl font-body text-sm focus:outline-none focus:border-gold-400" />
-        </div>
-        <div>
-          <label className="block font-body text-xs font-semibold text-charcoal-800/50 mb-1.5">Review Title</label>
-          <input value={form.title} onChange={set('title')} placeholder="Beautiful craftsmanship!"
-            className="w-full px-4 py-2.5 border border-ivory-300 rounded-xl font-body text-sm focus:outline-none focus:border-gold-400" />
-        </div>
-      </div>
-      <div>
-        <label className="block font-body text-xs font-semibold text-charcoal-800/50 mb-1.5">Your Review</label>
-        <textarea value={form.body} onChange={set('body')} rows={3} placeholder="Tell others about your experience…"
-          className="w-full px-4 py-2.5 border border-ivory-300 rounded-xl font-body text-sm focus:outline-none focus:border-gold-400 resize-none" />
-      </div>
-      <div>
-        <label className="block font-body text-xs font-semibold text-charcoal-800/50 mb-1.5 flex items-center gap-1.5">
-          <Camera size={12} />Add Photo (optional)
-        </label>
-        <label className="flex items-center gap-3 p-3 border border-dashed border-ivory-300 rounded-xl hover:border-gold-400 cursor-pointer transition-colors">
-          <Upload size={16} className="text-charcoal-800/30" />
-          <span className="font-body text-xs text-charcoal-800/50">
-            {photoFile ? photoFile.name : 'Click to upload a product photo'}
-          </span>
-          <input type="file" accept="image/*" onChange={e => setPhotoFile(e.target.files[0])} className="hidden" />
-        </label>
-      </div>
-      {error && <p className="text-xs font-body text-red-600 bg-red-50 px-3 py-2 rounded-xl border border-red-200">{error}</p>}
-      <button type="submit" disabled={submitting} className="w-full btn-gold justify-center py-3.5 rounded-xl disabled:opacity-60">
-        {submitting ? <><Loader2 size={15} className="animate-spin" />Submitting…</> : <>Submit Review</>}
-      </button>
-    </form>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      onClick={onClose}>
+      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+        className="w-full sm:max-w-md bg-charcoal-900 rounded-t-3xl sm:rounded-2xl border border-white/10 p-6"
+        onClick={e => e.stopPropagation()}>
+        {done ? (
+          <div className="text-center py-6">
+            <CheckCircle size={40} className="text-green-400 mx-auto mb-3" />
+            <div className="font-display text-white font-bold text-lg">Thank you!</div>
+            <p className="font-body text-ivory-300/50 text-sm mt-1">Review submitted for moderation.</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-display font-bold text-white text-lg">Write a Review</h3>
+              <button onClick={onClose} className="text-ivory-300/40 hover:text-white"><X size={20} /></button>
+            </div>
+            <form onSubmit={submit} className="space-y-4">
+              <div>
+                <label className="block font-body text-xs text-ivory-300/50 mb-1.5">Your Rating *</label>
+                <StarInput value={form.rating} onChange={r => setForm(p => ({ ...p, rating: r }))} />
+              </div>
+              <div>
+                <label className="block font-body text-xs text-ivory-300/50 mb-1.5">Your Name *</label>
+                <input value={form.reviewer_name} onChange={e => setForm(p => ({ ...p, reviewer_name: e.target.value }))}
+                  placeholder="Priya Sharma" required
+                  className="w-full px-4 py-2.5 bg-charcoal-800 border border-white/10 rounded-xl font-body text-sm text-white focus:outline-none focus:border-gold-500" />
+              </div>
+              <div>
+                <label className="block font-body text-xs text-ivory-300/50 mb-1.5">Your Review</label>
+                <textarea value={form.body} onChange={e => setForm(p => ({ ...p, body: e.target.value }))}
+                  rows={3} placeholder="Share your experience…"
+                  className="w-full px-4 py-2.5 bg-charcoal-800 border border-white/10 rounded-xl font-body text-sm text-white focus:outline-none focus:border-gold-500 resize-none" />
+              </div>
+              <button type="submit" disabled={submitting || !form.rating}
+                className="w-full btn-gold justify-center py-3 rounded-xl disabled:opacity-40">
+                {submitting ? <><Loader2 size={15} className="animate-spin" />Submitting…</> : 'Submit Review'}
+              </button>
+            </form>
+          </>
+        )}
+      </motion.div>
+    </motion.div>
   )
 }
 
-// ── Full Reviews Section (used on product page + landing page) ────────────────
-export default function ReviewsSection({ productId, showForm = true, title = 'Customer Reviews' }) {
-  const [reviews,     setReviews]     = useState([])
-  const [loading,     setLoading]     = useState(true)
-  const [showingForm, setShowingForm] = useState(false)
-  const [summary,     setSummary]     = useState(null)
+export default function ReviewsSection({ showForm = true, title = 'Reviews' }) {
+  const [reviews, setReviews] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [summary, setSummary] = useState(null)
 
   const load = () => {
-    const params = productId ? { product_id: productId, limit: 6 } : { featured: true, limit: 6 }
-    axios.get('/api/reviews', { params })
-      .then(r => setReviews(r.data))
-      .finally(() => setLoading(false))
-    axios.get('/api/reviews/summary').then(r => setSummary(r.data))
+    axios.get('/api/reviews?featured=true&limit=8')
+      .then(r => setReviews(r.data)).finally(() => setLoading(false))
+    axios.get('/api/reviews/summary').then(r => setSummary(r.data)).catch(() => {})
   }
-  useEffect(load, [productId])
-
-  const avgRating = summary?.avg_rating || 0
-  const total     = summary?.total_reviews || 0
+  useEffect(load, [])
 
   return (
-    <section className="py-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <div className="font-accent text-gold-600 italic text-lg mb-1">What our customers say</div>
-            <h2 className="section-title">{title}</h2>
-            {total > 0 && (
-              <div className="flex items-center gap-3 mt-3">
-                <div className="flex">
-                  {Array(5).fill(0).map((_, i) => (
-                    <Star key={i} size={18} className={i < Math.round(avgRating) ? 'text-gold-500 fill-gold-500' : 'text-gray-200 fill-gray-200'} />
-                  ))}
-                </div>
-                <span className="font-display font-bold text-charcoal-800 text-lg">{avgRating}</span>
-                <span className="font-body text-charcoal-800/40 text-sm">({total} reviews)</span>
-              </div>
-            )}
-          </div>
-          {showForm && (
-            <button onClick={() => setShowingForm(!showingForm)}
-              className={showingForm ? 'btn-outline-gold' : 'btn-gold'}>
-              {showingForm ? 'Cancel' : '✏️ Write a Review'}
-            </button>
+    <section className="pt-4 pb-2">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="font-display text-base sm:text-lg font-bold text-white">{title}</h2>
+          {summary?.avg_rating && (
+            <span className="font-body text-gold-400 text-xs bg-gold-500/10 px-2 py-0.5 rounded-full">
+              ★ {summary.avg_rating} ({summary.total_reviews})
+            </span>
           )}
         </div>
-
-        {/* Write Review Panel */}
-        <AnimatePresence>
-          {showingForm && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden mb-10">
-              <div className="bg-white rounded-2xl border border-ivory-200 p-7 shadow-sm">
-                <h3 className="font-display font-bold text-charcoal-800 text-xl mb-5">Share Your Experience</h3>
-                <ReviewForm
-                  productId={productId}
-                  onSubmitted={() => { setShowingForm(false); load() }}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Reviews grid */}
-        {loading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array(3).fill(null).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl h-40 animate-pulse border border-ivory-200" />
-            ))}
-          </div>
-        ) : reviews.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-2xl border border-ivory-200">
-            <Star size={36} className="mx-auto text-charcoal-800/20 mb-3" />
-            <p className="font-body text-charcoal-800/40">No reviews yet — be the first!</p>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {reviews.map((r, i) => <ReviewCard key={r.id} review={r} delay={i * 0.07} />)}
-          </div>
+        {showForm && (
+          <button onClick={() => setShowModal(true)}
+            className="font-body text-xs text-gold-400 hover:text-gold-300">+ Write one</button>
         )}
       </div>
+
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 sm:px-6 lg:px-8 pb-2
+        md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-visible">
+        {loading
+          ? Array(3).fill(null).map((_,i) => (
+              <div key={i} className="flex-shrink-0 w-64 h-28 bg-charcoal-800 rounded-xl animate-pulse" />
+            ))
+          : reviews.length === 0
+            ? <p className="font-body text-ivory-300/30 text-sm px-1">No reviews yet — be the first!</p>
+            : reviews.map((r, i) => <ReviewCard key={r.id} review={r} index={i} />)
+        }
+      </div>
+
+      <AnimatePresence>
+        {showModal && (
+          <ReviewFormModal onClose={() => setShowModal(false)} onSubmitted={load} />
+        )}
+      </AnimatePresence>
     </section>
   )
 }
