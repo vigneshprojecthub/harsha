@@ -1,10 +1,20 @@
 import axios from 'axios'
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+// In production: Vercel proxies /api/* → https://harsha-rxfv.onrender.com/api/*
+// In development: Vite proxies /api/* → http://localhost:8000/api/*
+// Both use relative /api — no hardcoded URLs needed
 const api = axios.create({
-  baseURL: `${API_URL}/api`,
-  timeout: 10000,
+  baseURL: '/api',
+  timeout: 15000,
 })
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    console.error('API Error:', error.config?.url, error.response?.status, error.response?.data)
+    return Promise.reject(error)
+  }
+)
 
 export const productsApi = {
   getAll: (params) => api.get('/products', { params }),

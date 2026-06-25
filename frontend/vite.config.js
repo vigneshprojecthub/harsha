@@ -7,11 +7,11 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:8000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
       '/uploads': {
-        target: process.env.VITE_API_URL || 'http://localhost:8000',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       }
     }
@@ -20,9 +20,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor':  ['react', 'react-dom', 'react-router-dom'],
-          'motion':        ['framer-motion'],
-          'charts':        ['recharts'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'motion':       ['framer-motion'],
+          'charts':       ['recharts'],
         }
       }
     }
