@@ -29,7 +29,7 @@ export function useAbandonedCart(contactInfo = {}) {
     clearTimeout(timer.current)
     timer.current = setTimeout(async () => {
       try {
-        await axios.post(`${import.meta.env.VITE_API_URL}/api/abandoned-cart`, {
+        await axios.post('/api/abandoned-cart', {
           session_id:  sessionId,
           phone:       contactInfo.phone  || null,
           email:       contactInfo.email  || null,

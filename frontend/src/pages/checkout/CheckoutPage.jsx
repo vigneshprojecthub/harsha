@@ -82,7 +82,7 @@ export default function CheckoutPage() {
         })),
       }
 
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/checkout/initiate`, payload)
+      const { data } = await axios.post('/api/checkout/initiate', payload)
 
       // Store checkout data for payment page
       sessionStorage.setItem('hag_checkout', JSON.stringify({ ...data, customerPhone: form.customer_phone }))
