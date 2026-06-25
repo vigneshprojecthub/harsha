@@ -208,7 +208,12 @@ def get_order_timeline(order_id: int, db: Session = Depends(get_db)):
 @router.get("/token/{token}", response_model=dict)
 def get_timeline_by_token(token: str, db: Session = Depends(get_db)):
     """Public: customer tracks order using a token (no auth needed)."""
-    tok = db.query(TrackingToken).filter(TrackingToken.token == token).first()
+    try:
+        tok = db.query(TrackingToken).filter(TrackingToken.token == token).first()
+    except Exception as e:
+        # Table doesn't exist yet — migrations not run
+        raise HTTPException(500, f"Tracking tables not set up yet. Run migrate_phase4.sql on your database. Error: {str(e)}")
+
     if not tok:
         raise HTTPException(404, "Tracking link not found or expired")
 
@@ -216,16 +221,21 @@ def get_timeline_by_token(token: str, db: Session = Depends(get_db)):
     if not order:
         raise HTTPException(404, "Order not found")
 
-    events = (
-        db.query(OrderTrackingEvent)
-        .options(joinedload(OrderTrackingEvent.photos))
-        .filter(OrderTrackingEvent.order_id == tok.order_id)
-        .order_by(OrderTrackingEvent.created_at)
-        .all()
-    )
+    try:
+        events = (
+            db.query(OrderTrackingEvent)
+            .options(joinedload(OrderTrackingEvent.photos))
+            .filter(OrderTrackingEvent.order_id == tok.order_id)
+            .order_by(OrderTrackingEvent.created_at)
+            .all()
+        )
+    except Exception:
+        events = []
+
     result = _build_timeline(order, events)
     # Mask customer details for privacy on public endpoint
-    result["customer_name"] = result["customer_name"].split()[0] + "…"
+    name = result.get("customer_name", "Customer")
+    result["customer_name"] = (name.split()[0] + "…") if name else "Customer…"
     return result
 
 
