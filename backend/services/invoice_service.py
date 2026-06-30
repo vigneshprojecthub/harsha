@@ -135,7 +135,7 @@ def generate_invoice_pdf(
             Paragraph("Harsha Art Gallery", S["brand_title"]),
             Paragraph("Premium Handcrafted Embroidery", S["brand_sub"]),
             Paragraph("Chennai, Tamil Nadu, India", S["brand_sub"]),
-            Paragraph("harsha@artgallery.com  ·  +91 98765 43210", S["brand_sub"]),
+            Paragraph("harshaartandcrafts@gmail.com  ·  +91 9344946069", S["brand_sub"]),
             Paragraph("GSTIN: 33XXXXX0000X1ZX", S["brand_sub"]),
         ],
         # Right: INVOICE label + meta
@@ -305,7 +305,7 @@ def generate_invoice_pdf(
             S["small"]
         ),
         Paragraph(
-            "For queries: harsha@artgallery.com  ·  +91 98765 43210",
+            "For queries: harshaartandcrafts@gmail.com  ·  +91 9344946069",
             ParagraphStyle("footer_r", parent=S["small"], alignment=TA_RIGHT)
         ),
     ]]

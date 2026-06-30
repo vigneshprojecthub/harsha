@@ -143,12 +143,12 @@ Edit `backend/.env`:
 DATABASE_URL=postgresql://postgres:password@localhost:5432/harsha_gallery
 SECRET_KEY=your-secret-key-change-in-production
 UPLOAD_DIR=uploads
-WHATSAPP_NUMBER=919876543210    # Your WhatsApp number with country code
+WHATSAPP_NUMBER=919344946069    # Your WhatsApp number with country code
 ```
 
 Edit `frontend/src/utils/whatsapp.js`:
 ```js
-const WHATSAPP_NUMBER = '919876543210'  // Replace with actual number
+const WHATSAPP_NUMBER = '919344946069'  // Replace with actual number
 ```
 
 ---

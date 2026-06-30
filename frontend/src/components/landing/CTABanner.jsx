@@ -38,7 +38,7 @@ export default function CTABanner() {
               <ArrowRight size={16} />
             </Link>
             <a
-              href="https://wa.me/919876543210"
+              href="https://wa.me/919344946069"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-white text-white font-body font-semibold tracking-wide rounded-sm hover:bg-white/10 transition-colors"

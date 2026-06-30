@@ -19,8 +19,8 @@ SMTP_HOST     = os.getenv("SMTP_HOST",     "smtp.gmail.com")
 SMTP_PORT     = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER     = os.getenv("SMTP_USER",     "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-FROM_EMAIL    = os.getenv("FROM_EMAIL",    "Harsha Art Gallery <harsha@artgallery.com>")
-WHATSAPP_NUM  = os.getenv("WHATSAPP_NUMBER", "919876543210")
+FROM_EMAIL    = os.getenv("FROM_EMAIL",    "Harsha Art Gallery <harshaartandcrafts@gmail.com>")
+WHATSAPP_NUM  = os.getenv("WHATSAPP_NUMBER", "919344946069")
 
 
 # ── HTML email template ───────────────────────────────────────────────────────
@@ -159,8 +159,8 @@ def _order_confirmation_html(order, invoice) -> str:
         <tr>
           <td style="background:#1a1510;padding:24px 40px;text-align:center;">
             <div style="font-size:12px;color:rgba(255,255,255,0.4);">
-              © {__import__('datetime').datetime.now().year} Harsha Art Gallery · Chennai, Tamil Nadu, India<br>
-              Questions? <a href="mailto:harsha@artgallery.com" style="color:#c8860f;">harsha@artgallery.com</a>
+              © {__import__('datetime').datetime.now().year} Harsha Art Gallery · Coimbatore, Tamil Nadu, India<br>
+              Questions? <a href="mailto:harshaartandcrafts@gmail.com" style="color:#c8860f;">harshaartandcrafts@gmail.com</a>
             </div>
           </td>
         </tr>

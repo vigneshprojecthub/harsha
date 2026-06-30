@@ -48,7 +48,7 @@ export default function ProductDetailPage() {
   }
 
   const whatsappMessage = `Hi! I'm interested in "${product.name}" (₹${product.price.toLocaleString('en-IN')}). Can you provide more details?`
-  const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappUrl = `https://wa.me/919344946069?text=${encodeURIComponent(whatsappMessage)}`
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-ivory-50 pt-24">

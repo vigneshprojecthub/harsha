@@ -32,7 +32,7 @@ CUSTOM_KW  = ["custom", "customize", "design", "stitch", "embroider"]
 CATALOG_KW = ["catalogue", "catalog", "products", "collection", "work", "show"]
 TIMING_KW  = ["days", "time", "when", "deliver", "how long", "timeline"]
 
-BUSINESS_PHONE  = os.getenv("WHATSAPP_NUMBER", "919876543210")
+BUSINESS_PHONE  = os.getenv("WHATSAPP_NUMBER", "919344946069")
 WEBSITE_URL     = os.getenv("PUBLIC_FRONTEND_URL", "http://localhost:5173")
 
 def _matches(text: str, keywords: list) -> bool:

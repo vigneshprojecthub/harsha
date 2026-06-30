@@ -93,7 +93,7 @@ export default function CustomOrderPage() {
             Your custom order request has been submitted. We're opening WhatsApp to connect you directly with our artisans.
           </p>
           <a
-            href={`https://wa.me/919876543210?text=${encodeURIComponent(`Hi! I just submitted a custom order for ${form.product_type}. Please guide me further.`)}`}
+            href={`https://wa.me/919344946069?text=${encodeURIComponent(`Hi! I just submitted a custom order for ${form.product_type}. Please guide me further.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-gold"

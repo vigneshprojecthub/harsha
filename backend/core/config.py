@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
 
     # WhatsApp
-    WHATSAPP_NUMBER: str = "919876543210"
+    WHATSAPP_NUMBER: str = "919344946069"
     WHATSAPP_API_TOKEN: str = ""
     WHATSAPP_PHONE_NUMBER_ID: str = ""
     WHATSAPP_VERIFY_TOKEN: str = "harsha_gallery_verify_2025"
@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
-    FROM_EMAIL: str = "Harsha Art Gallery <harsha@artgallery.com>"
+    FROM_EMAIL: str = "Harsha Art Gallery <harshaartandcrafts@gmail.com>"
 
     # Instagram
     INSTAGRAM_ACCESS_TOKEN: str = ""

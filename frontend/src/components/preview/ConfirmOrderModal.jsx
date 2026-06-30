@@ -42,7 +42,7 @@ export default function ConfirmOrderModal({ preview, onClose, onSuccess }) {
       `Hi! I've just confirmed a custom AI design order on Harsha Art Gallery.\n` +
       `Name: ${form.customer_name}\nPhone: ${form.phone}\nNotes: ${form.notes || 'None'}\n` +
       `Preview: ${window.location.origin}${preview.generated_preview_url}`
-    window.open(`https://wa.me/919876543210?text=${encodeURIComponent(msg)}`, '_blank')
+    window.open(`https://wa.me/919344946069?text=${encodeURIComponent(msg)}`, '_blank')
     onClose()
   }
 

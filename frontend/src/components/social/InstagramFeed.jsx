@@ -22,9 +22,9 @@ export default function InstagramFeed({ limit = 6, showHeader = false }) {
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
         <div className="flex items-center gap-2">
           <Instagram size={14} className="text-gold-400" />
-          <h2 className="font-display text-base sm:text-lg font-bold text-white">@harshaartgallery</h2>
+          <h2 className="font-display text-base sm:text-lg font-bold text-white">@harsha_art_gallery</h2>
         </div>
-        <a href="https://instagram.com/harshaartgallery" target="_blank" rel="noopener noreferrer"
+        <a href="https://instagram.com/harsha_art_gallery" target="_blank" rel="noopener noreferrer"
           className="font-body text-xs text-gold-400 hover:text-gold-300 flex items-center gap-1">
           Follow <ExternalLink size={10} />
         </a>
@@ -38,7 +38,7 @@ export default function InstagramFeed({ limit = 6, showHeader = false }) {
             ))
           : items.map((post, i) => (
               <motion.a key={post.id}
-                href={post.permalink || 'https://instagram.com/harshaartgallery'}
+                href={post.permalink || 'https://instagram.com/harsha_art_gallery'}
                 target="_blank" rel="noopener noreferrer"
                 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.05 }}

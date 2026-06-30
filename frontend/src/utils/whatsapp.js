@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = '919876543210' // Replace with actual number
+const WHATSAPP_NUMBER = '919344946069' // Replace with actual number
 
 export function buildWhatsAppUrl(order) {
   const message = `
