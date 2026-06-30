@@ -500,19 +500,61 @@ async def instagram_image_proxy(url: str):
     avoiding both issues.
     """
     import httpx
-    from fastapi.responses import StreamingResponse, Response
+    from fastapi.responses import Response
 
-    if not url.startswith("https://") or "fbcdn.net" not in url and "cdninstagram.com" not in url:
+    # Allow any https Instagram/Facebook CDN domain (was using buggy and/or precedence before)
+    is_valid = url.startswith("https://") and (
+        "fbcdn.net" in url or "cdninstagram.com" in url or "instagram." in url
+    )
+    if not is_valid:
+        print(f"[instagram-proxy] Rejected invalid URL: {url[:100]}")
         raise HTTPException(400, "Invalid Instagram CDN URL")
 
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+            resp = await client.get(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "image/webp,image/apng,image/*,*/*;q=0.8",
+                }
+            )
             resp.raise_for_status()
+            content_type = resp.headers.get("content-type", "image/jpeg")
+            print(f"[instagram-proxy] OK {resp.status_code} {content_type} {len(resp.content)} bytes")
             return Response(
                 content=resp.content,
-                media_type=resp.headers.get("content-type", "image/jpeg"),
+                media_type=content_type,
                 headers={"Cache-Control": "public, max-age=3600"},
             )
+    except httpx.HTTPStatusError as e:
+        print(f"[instagram-proxy] HTTP {e.response.status_code} fetching: {url[:150]}")
+        raise HTTPException(502, f"Instagram CDN returned {e.response.status_code}")
     except Exception as e:
+        print(f"[instagram-proxy] Error: {e} | URL: {url[:150]}")
         raise HTTPException(502, f"Failed to fetch Instagram image: {str(e)}")
+
+
+@router.get("/instagram/debug-raw")
+async def instagram_debug_raw():
+    """
+    DEBUG: Returns the raw, unprocessed Instagram API response.
+    Use this to verify thumbnail_url is actually present in the API data.
+    Remove or protect this endpoint after debugging.
+    """
+    import httpx
+    from services.instagram_service import IG_TOKEN, IG_BIZ_ID, IG_BASE
+
+    if not IG_TOKEN or not IG_BIZ_ID:
+        return {"error": "Instagram not configured", "has_token": bool(IG_TOKEN), "has_biz_id": bool(IG_BIZ_ID)}
+
+    fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp"
+    url    = f"{IG_BASE}/{IG_BIZ_ID}/media"
+    params = {"fields": fields, "limit": 8, "access_token": IG_TOKEN}
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.get(url, params=params)
+        return {
+            "status_code": resp.status_code,
+            "raw_response": resp.json(),
+        }

@@ -74,17 +74,24 @@ async def fetch_instagram_posts(limit: int = 24, media_type: Optional[str] = Non
         for p in all_raw:
             media_type_val = p.get("media_type", "IMAGE")  # IMAGE | VIDEO | CAROUSEL_ALBUM
 
-            # CRITICAL FIX: videos must use thumbnail_url for display (media_url is the raw .mp4 file)
+            # CRITICAL FIX: videos must use thumbnail_url for display (media_url is the raw .mp4 file
+            # which CANNOT be rendered by an <img> tag — only thumbnail_url is a real image)
             if media_type_val == "VIDEO":
-                display_url = p.get("thumbnail_url") or p.get("media_url")
+                display_url = p.get("thumbnail_url")  # NO fallback to media_url — that's a video file, not an image
+                if not display_url:
+                    print(f"[instagram] WARNING: VIDEO post {p.get('id')} has no thumbnail_url!")
             elif media_type_val == "CAROUSEL_ALBUM":
-                # Use first child's image, or thumbnail if first child is itself a video
+                # Use first child's image. If first child is itself a video, use ITS thumbnail (never its media_url)
                 children = p.get("children", {}).get("data", [])
                 if children:
                     first_child = children[0]
-                    display_url = first_child.get("thumbnail_url") or first_child.get("media_url")
+                    if first_child.get("media_type") == "VIDEO":
+                        display_url = first_child.get("thumbnail_url")
+                    else:
+                        display_url = first_child.get("media_url") or first_child.get("thumbnail_url")
                 else:
-                    display_url = p.get("media_url") or p.get("thumbnail_url")
+                    # No children data — carousel cover itself sometimes has thumbnail_url
+                    display_url = p.get("thumbnail_url") or p.get("media_url")
             else:
                 display_url = p.get("media_url")
 
