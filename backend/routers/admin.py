@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends
+from core.auth import get_current_admin
 from sqlalchemy.orm import Session
 
 from core.database import get_db
 from models.models import Category, Product
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_admin)])
 
 @router.post("/seed")
 def seed_database(db: Session = Depends(get_db)):

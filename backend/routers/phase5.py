@@ -8,8 +8,8 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends
-from core.auth import get_current_admin, Depends, HTTPException, UploadFile, File, Form, Request, BackgroundTasks, Query
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request, BackgroundTasks, Query
+from core.auth import get_current_admin
 from sqlalchemy.orm import Session
 
 from core.database import get_db
