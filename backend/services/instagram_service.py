@@ -19,7 +19,7 @@ from typing import Optional
 
 IG_TOKEN    = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
 IG_BIZ_ID   = os.getenv("INSTAGRAM_BUSINESS_ID", "")
-IG_VERSION  = "v19.0"
+IG_VERSION  = "v21.0"
 IG_BASE     = f"https://graph.facebook.com/{IG_VERSION}"
 
 # In-memory cache (replace with Redis in production)
@@ -27,15 +27,18 @@ _post_cache: dict = {"data": [], "fetched_at": 0}
 CACHE_TTL = 3600  # 1 hour
 
 
-async def fetch_instagram_posts(limit: int = 12, media_type: Optional[str] = None) -> list:
+async def fetch_instagram_posts(limit: int = 24, media_type: Optional[str] = None) -> list:
     """
     Fetch recent posts from Instagram Business account.
     Returns list of post objects with image_url, caption, permalink, media_type.
     Falls back to demo posts if API not configured.
+
+    Note: Instagram Graph API returns posts in REVERSE-CHRONOLOGICAL order
+    (newest first) by default — this matches your actual Instagram feed order.
     """
     import time
 
-    # Return cache if fresh
+    # Return cache if fresh (cache stores up to 50, slice per-request)
     if _post_cache["data"] and time.time() - _post_cache["fetched_at"] < CACHE_TTL:
         posts = _post_cache["data"]
         if media_type:
@@ -45,23 +48,52 @@ async def fetch_instagram_posts(limit: int = 12, media_type: Optional[str] = Non
     if not IG_TOKEN or not IG_BIZ_ID:
         return _demo_posts(limit, media_type)
 
-    fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count"
+    fields = "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count,children{media_type,media_url,thumbnail_url}"
     url    = f"{IG_BASE}/{IG_BIZ_ID}/media"
+    # Fetch up to 50 — Instagram API max per page is 25, so we paginate once
     params = {"fields": fields, "limit": 50, "access_token": IG_TOKEN}
 
     try:
+        all_raw = []
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.get(url, params=params)
             resp.raise_for_status()
-            raw = resp.json().get("data", [])
+            data = resp.json()
+            all_raw.extend(data.get("data", []))
+
+            # Paginate if more posts exist and we need more than first page
+            next_url = data.get("paging", {}).get("next")
+            while next_url and len(all_raw) < 50:
+                resp = await client.get(next_url)
+                resp.raise_for_status()
+                data = resp.json()
+                all_raw.extend(data.get("data", []))
+                next_url = data.get("paging", {}).get("next")
 
         posts = []
-        for p in raw:
+        for p in all_raw:
+            media_type_val = p.get("media_type", "IMAGE")  # IMAGE | VIDEO | CAROUSEL_ALBUM
+
+            # CRITICAL FIX: videos must use thumbnail_url for display (media_url is the raw .mp4 file)
+            if media_type_val == "VIDEO":
+                display_url = p.get("thumbnail_url") or p.get("media_url")
+            elif media_type_val == "CAROUSEL_ALBUM":
+                # Use first child's image, or thumbnail if first child is itself a video
+                children = p.get("children", {}).get("data", [])
+                if children:
+                    first_child = children[0]
+                    display_url = first_child.get("thumbnail_url") or first_child.get("media_url")
+                else:
+                    display_url = p.get("media_url") or p.get("thumbnail_url")
+            else:
+                display_url = p.get("media_url")
+
             posts.append({
                 "id":             p["id"],
                 "caption":        (p.get("caption") or "")[:280],
-                "media_type":     p.get("media_type", "IMAGE"),     # IMAGE | VIDEO | CAROUSEL_ALBUM
-                "media_url":      p.get("media_url") or p.get("thumbnail_url"),
+                "media_type":     media_type_val,
+                "media_url":      display_url,
+                "video_url":      p.get("media_url") if media_type_val == "VIDEO" else None,
                 "permalink":      p.get("permalink", ""),
                 "timestamp":      p.get("timestamp", ""),
                 "like_count":     p.get("like_count", 0),
@@ -102,6 +134,12 @@ async def refresh_instagram_token() -> Optional[str]:
         return None
 
 
+def clear_cache():
+    """Force-clear the in-memory post cache (call after manual refresh)."""
+    _post_cache["data"] = []
+    _post_cache["fetched_at"] = 0
+
+
 def _demo_posts(limit: int, media_type: Optional[str]) -> list:
     """Return realistic demo posts when Instagram API is not configured."""
     demo = [
@@ -109,7 +147,7 @@ def _demo_posts(limit: int, media_type: Optional[str]) -> list:
             "id": f"demo_{i}", "media_type": "IMAGE",
             "media_url": None,  # frontend shows placeholder
             "caption": cap,
-            "permalink": "https://instagram.com/harshaartgallery",
+            "permalink": "https://instagram.com/harsha_art_gallery",
             "timestamp": f"2025-0{(i%9)+1}-15T10:00:00+0000",
             "like_count": 45 + i * 17,
             "comments_count": 3 + i * 2,

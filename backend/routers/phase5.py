@@ -8,7 +8,8 @@ from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Request, BackgroundTasks, Query
+from fastapi import APIRouter, Depends
+from core.auth import get_current_admin, Depends, HTTPException, UploadFile, File, Form, Request, BackgroundTasks, Query
 from sqlalchemy.orm import Session
 
 from core.database import get_db
@@ -106,6 +107,13 @@ async def refresh_ig_token():
     if new_token:
         return {"success": True, "note": "Update INSTAGRAM_ACCESS_TOKEN in .env"}
     raise HTTPException(500, "Token refresh failed")
+
+
+@router.post("/instagram/clear-cache")
+async def clear_ig_cache():
+    """Force-refresh Instagram feed (clears 1-hour cache, next request fetches fresh)."""
+    instagram_service.clear_cache()
+    return {"success": True, "message": "Cache cleared — next request will fetch fresh posts"}
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -271,7 +279,7 @@ def delete_coupon(coupon_id: int, db: Session = Depends(get_db)):
     db.commit()
 
 
-@router.patch("/coupons/{coupon_id}/toggle")
+@router.patch("/coupons/{coupon_id}/toggle", dependencies=[Depends(get_current_admin)])
 def toggle_coupon(coupon_id: int, db: Session = Depends(get_db)):
     coupon = db.query(Coupon).filter(Coupon.id == coupon_id).first()
     if not coupon:
@@ -311,7 +319,7 @@ def mark_recovered(session_id: str, order_id: int, db: Session = Depends(get_db)
     return {"recovered": True}
 
 
-@router.post("/abandoned-cart/send-reminders")
+@router.post("/abandoned-cart/send-reminders", dependencies=[Depends(get_current_admin)])
 async def send_abandoned_cart_reminders(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """
     Send WhatsApp reminders to carts abandoned > 2 hours ago with < 3 reminders sent.
@@ -457,7 +465,7 @@ def track_event(event: AnalyticsEventIn, db: Session = Depends(get_db)):
 #  ANALYTICS DASHBOARD
 # ════════════════════════════════════════════════════════════════════
 
-@router.get("/analytics/overview")
+@router.get("/analytics/overview", dependencies=[Depends(get_current_admin)])
 def analytics_overview(days: int = 30, db: Session = Depends(get_db)):
     return {
         "sales":       analytics_service.get_sales_overview(db, days),
@@ -468,16 +476,16 @@ def analytics_overview(days: int = 30, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/analytics/daily-revenue")
+@router.get("/analytics/daily-revenue", dependencies=[Depends(get_current_admin)])
 def daily_revenue(days: int = 30, db: Session = Depends(get_db)):
     return analytics_service.get_daily_revenue(db, days)
 
 
-@router.get("/analytics/top-products")
+@router.get("/analytics/top-products", dependencies=[Depends(get_current_admin)])
 def top_products(limit: int = 10, db: Session = Depends(get_db)):
     return analytics_service.get_top_products(db, limit)
 
 
-@router.get("/analytics/top-customers")
+@router.get("/analytics/top-customers", dependencies=[Depends(get_current_admin)])
 def top_customers(limit: int = 10, db: Session = Depends(get_db)):
     return analytics_service.get_top_customers(db, limit)

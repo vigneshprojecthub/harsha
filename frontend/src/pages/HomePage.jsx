@@ -20,7 +20,7 @@ export default function HomePage() {
         <AIPreviewBanner />
         <WhyChooseUs />
         <ReviewsSection showForm={false} title="Customer Reviews" />
-        <InstagramFeed limit={6} showHeader={false} />
+        <InstagramFeed limit={18} showHeader={false} />
       </div>
     </motion.div>
   )
