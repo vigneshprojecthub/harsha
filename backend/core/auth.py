@@ -24,18 +24,26 @@ ALGORITHM       = "HS256"
 TOKEN_EXPIRE_H  = 12   # token valid for 12 hours
 
 ADMIN_USERNAME  = os.getenv("ADMIN_USERNAME", "harsha_admin")
-ADMIN_PASSWORD  = os.getenv("ADMIN_PASSWORD", "HarshaAdmin@2024!")
+ADMIN_PASSWORD  = os.getenv("ADMIN_PASSWORD", "HarshaAdmin@2024!")[:72]  # bcrypt hard limit is 72 bytes
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer      = HTTPBearer(auto_error=False)
 
-# ── Hash the configured password at startup ───────────────────────────────────
-_HASHED_PASSWORD = pwd_context.hash(ADMIN_PASSWORD)
+# ── Lazy-hash the configured password (avoids crashing the whole app at
+#    import time if there's ever a bcrypt/passlib version mismatch again) ─────
+_HASHED_PASSWORD: Optional[str] = None
+
+
+def _get_hashed_password() -> str:
+    global _HASHED_PASSWORD
+    if _HASHED_PASSWORD is None:
+        _HASHED_PASSWORD = pwd_context.hash(ADMIN_PASSWORD)
+    return _HASHED_PASSWORD
 
 
 def verify_credentials(username: str, password: str) -> bool:
     """Return True if username + password match the configured admin credentials."""
-    return username == ADMIN_USERNAME and pwd_context.verify(password, _HASHED_PASSWORD)
+    return username == ADMIN_USERNAME and pwd_context.verify(password[:72], _get_hashed_password())
 
 
 def create_access_token(username: str) -> str:
