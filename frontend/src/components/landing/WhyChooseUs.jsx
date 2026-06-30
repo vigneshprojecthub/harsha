@@ -10,8 +10,8 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <section className="pt-4 pb-2">
-      <div className="px-4 sm:px-6 lg:px-8 mb-3">
+    <section className="py-6 sm:py-8">
+      <div className="px-4 sm:px-6 lg:px-8 mb-4">
         <h2 className="font-display text-base sm:text-lg font-bold text-white">Why Choose Us</h2>
       </div>
       <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 sm:px-6 lg:px-8 pb-2

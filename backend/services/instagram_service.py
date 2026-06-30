@@ -24,7 +24,7 @@ IG_BASE     = f"https://graph.facebook.com/{IG_VERSION}"
 
 # In-memory cache (replace with Redis in production)
 _post_cache: dict = {"data": [], "fetched_at": 0}
-CACHE_TTL = 3600  # 1 hour
+CACHE_TTL = 900  # 15 minutes — Instagram signed CDN URLs expire, keep cache short
 
 
 async def fetch_instagram_posts(limit: int = 24, media_type: Optional[str] = None) -> list:
@@ -92,7 +92,7 @@ async def fetch_instagram_posts(limit: int = 24, media_type: Optional[str] = Non
                 "id":             p["id"],
                 "caption":        (p.get("caption") or "")[:280],
                 "media_type":     media_type_val,
-                "media_url":      display_url,
+                "media_url":      _proxy_url(display_url),
                 "video_url":      p.get("media_url") if media_type_val == "VIDEO" else None,
                 "permalink":      p.get("permalink", ""),
                 "timestamp":      p.get("timestamp", ""),
@@ -132,6 +132,14 @@ async def refresh_instagram_token() -> Optional[str]:
     except Exception as e:
         print(f"[instagram] Token refresh failed: {e}")
         return None
+
+
+def _proxy_url(raw_url: str) -> str:
+    """Route an Instagram CDN URL through our backend proxy to avoid hotlink blocks/expiry."""
+    if not raw_url:
+        return raw_url
+    import urllib.parse
+    return f"/api/instagram/image-proxy?url={urllib.parse.quote(raw_url, safe='')}"
 
 
 def clear_cache():

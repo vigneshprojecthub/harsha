@@ -489,3 +489,30 @@ def top_products(limit: int = 10, db: Session = Depends(get_db)):
 @router.get("/analytics/top-customers", dependencies=[Depends(get_current_admin)])
 def top_customers(limit: int = 10, db: Session = Depends(get_db)):
     return analytics_service.get_top_customers(db, limit)
+
+
+@router.get("/instagram/image-proxy")
+async def instagram_image_proxy(url: str):
+    """
+    Proxy Instagram CDN images through our backend.
+    Instagram's CDN sometimes blocks hotlinking from external domains (CORS/referrer checks),
+    and signed URLs expire after a few hours. This endpoint fetches fresh and streams it through,
+    avoiding both issues.
+    """
+    import httpx
+    from fastapi.responses import StreamingResponse, Response
+
+    if not url.startswith("https://") or "fbcdn.net" not in url and "cdninstagram.com" not in url:
+        raise HTTPException(400, "Invalid Instagram CDN URL")
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            resp.raise_for_status()
+            return Response(
+                content=resp.content,
+                media_type=resp.headers.get("content-type", "image/jpeg"),
+                headers={"Cache-Control": "public, max-age=3600"},
+            )
+    except Exception as e:
+        raise HTTPException(502, f"Failed to fetch Instagram image: {str(e)}")

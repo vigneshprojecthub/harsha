@@ -122,8 +122,8 @@ export default function ReviewsSection({ showForm = true, title = 'Reviews' }) {
   useEffect(load, [])
 
   return (
-    <section className="pt-4 pb-2">
-      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
+    <section className="py-6 sm:py-8">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-4">
         <div className="flex items-center gap-2">
           <h2 className="font-display text-base sm:text-lg font-bold text-white">{title}</h2>
           {summary?.avg_rating && (

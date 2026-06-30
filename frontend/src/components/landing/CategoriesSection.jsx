@@ -11,8 +11,8 @@ const categories = [
 
 export default function CategoriesSection() {
   return (
-    <section className="pt-6 pb-2">
-      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-3">
+    <section className="py-6 sm:py-8">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 mb-4">
         <h2 className="font-display text-base sm:text-lg font-bold text-white">Collections</h2>
         <Link to="/products" className="font-body text-xs text-gold-400 hover:text-gold-300">See all →</Link>
       </div>

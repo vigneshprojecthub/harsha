@@ -14,13 +14,13 @@ export default function HomePage() {
       {/* Compact hero — no full-screen scroll trap */}
       <HeroSection />
       {/* Horizontal scroll rows — Netflix style */}
-      <div className="space-y-2 pb-24 md:pb-8">
+      <div className="pb-24 md:pb-8">
         <CategoriesSection />
         <FeaturedProducts />
         <AIPreviewBanner />
         <WhyChooseUs />
         <ReviewsSection showForm={false} title="Customer Reviews" />
-        <InstagramFeed limit={18} showHeader={false} />
+        <InstagramFeed limit={18} />
       </div>
     </motion.div>
   )

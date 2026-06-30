@@ -4,7 +4,7 @@ import { Wand2, ArrowRight } from 'lucide-react'
 
 export default function AIPreviewBanner() {
   return (
-    <section className="px-4 sm:px-6 lg:px-8 py-4">
+    <section className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
