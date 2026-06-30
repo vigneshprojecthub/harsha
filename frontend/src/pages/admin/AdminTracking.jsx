@@ -287,9 +287,6 @@ export default function AdminTracking() {
   const [selected,     setSelected]     = useState(null)
   const [search,       setSearch]       = useState('')
 
-  // Admin WS — receives ALL order updates
-  const { events: wsEvents, connected } = useOrderTracking(null, 'admin')
-
   const loadActiveOrders = async () => {
     try {
       const { data } = await axios.get('/api/tracking/admin/active')
@@ -298,20 +295,14 @@ export default function AdminTracking() {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { loadActiveOrders() }, [])
-
-  // Refresh list on any WS update
   useEffect(() => {
-    if (!wsEvents.length) return
-    const latest = wsEvents[0]
-    if (latest.type === 'status_update') {
-      setActiveOrders(prev => prev.map(o =>
-        o.id === latest.order_id
-          ? { ...o, status: latest.status, status_label: latest.label, status_icon: latest.icon, last_update: latest.timestamp }
-          : o
-      ))
-    }
-  }, [wsEvents])
+    loadActiveOrders()
+    // Poll every 20s instead of WebSocket (Render free tier doesn't support persistent WS)
+    const interval = setInterval(loadActiveOrders, 20000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const connected = true  // polling-based — always shows as live
 
   const handleStatusUpdate = (orderId, newStatus) => {
     setActiveOrders(prev => prev.map(o =>

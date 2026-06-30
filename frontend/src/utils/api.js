@@ -8,6 +8,18 @@ const api = axios.create({
   timeout: 15000,
 })
 
+// Attach admin JWT token if present — this is a SEPARATE axios instance from
+// the global `axios` object, so it does not automatically inherit the
+// Authorization header set on axios.defaults by AuthContext. Read directly
+// from localStorage on every request instead.
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('harsha_admin_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 api.interceptors.response.use(
   response => response,
   error => {
