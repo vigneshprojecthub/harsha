@@ -188,14 +188,20 @@ async def add_status_event(
 def get_order_timeline(order_id: int, db: Session = Depends(get_db)):
     """Admin: full order timeline with all events and photos."""
     order = _get_order_or_404(order_id, db)
-    events = (
-        db.query(OrderTrackingEvent)
-        .options(joinedload(OrderTrackingEvent.photos))
-        .filter(OrderTrackingEvent.order_id == order_id)
-        .order_by(OrderTrackingEvent.created_at)
-        .all()
-    )
-    token = _get_tracking_token(order_id, db)
+    events = []
+    token = None
+    try:
+        events = (
+            db.query(OrderTrackingEvent)
+            .options(joinedload(OrderTrackingEvent.photos))
+            .filter(OrderTrackingEvent.order_id == order_id)
+            .order_by(OrderTrackingEvent.created_at)
+            .all()
+        )
+        token = _get_tracking_token(order_id, db)
+    except Exception as e:
+        # Tables don't exist yet — run migrate_all.sql on Neon
+        pass
     result = _build_timeline(order, events)
     result["tracking_token"] = token
     result["whatsapp_url"] = (
@@ -352,6 +358,46 @@ def get_active_orders(db: Session = Depends(get_db)):
             "created_at":   o.created_at.isoformat(),
         })
     return result
+
+
+
+
+@router.get("/by-order-number/{order_number}", response_model=dict)
+def get_timeline_by_order_number(order_number: str, db: Session = Depends(get_db)):
+    """Public: look up tracking by order number (HAG-XXXXXX-XXXX format)."""
+    try:
+        order = db.query(Order).filter(Order.order_number == order_number.upper()).first()
+        if not order:
+            raise HTTPException(404, f"Order {order_number} not found")
+
+        # Auto-generate tracking token if not exists
+        tok = db.query(TrackingToken).filter(TrackingToken.order_id == order.id).first()
+        if not tok:
+            tok = TrackingToken(token=uuid.uuid4().hex, order_id=order.id)
+            db.add(tok)
+            db.commit()
+
+        events = []
+        try:
+            events = (
+                db.query(OrderTrackingEvent)
+                .options(joinedload(OrderTrackingEvent.photos))
+                .filter(OrderTrackingEvent.order_id == order.id)
+                .order_by(OrderTrackingEvent.created_at)
+                .all()
+            )
+        except Exception:
+            pass  # table may not exist yet
+
+        result = _build_timeline(order, events)
+        result["tracking_token"] = tok.token
+        name = result.get("customer_name", "Customer")
+        result["customer_name"] = (name.split()[0] + "…") if name else "Customer…"
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(500, f"Error: {str(e)}")
 
 
 @router.get("/ws/stats")

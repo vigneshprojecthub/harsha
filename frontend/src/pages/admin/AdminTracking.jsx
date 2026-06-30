@@ -5,7 +5,6 @@ import {
   Loader2, AlertCircle, Camera, Send, Wifi, WifiOff, X
 } from 'lucide-react'
 import axios from 'axios'
-import { useOrderTracking } from '../../hooks/useOrderTracking'
 import TrackingTimeline from '../../components/tracking/TrackingTimeline'
 
 const STATUSES = [
@@ -33,7 +32,7 @@ function OrderTrackingPanel({ order, onStatusUpdate }) {
   const [toast,       setToast]       = useState(null)
   const fileRef = useRef()
 
-  const { events: wsEvents, connected } = useOrderTracking(order.id, 'order')
+  const connected = true  // polling-based, always "connected"
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type })
@@ -50,12 +49,6 @@ function OrderTrackingPanel({ order, onStatusUpdate }) {
   }
 
   useEffect(() => { loadTimeline() }, [order.id])
-
-  // Refresh when WS update arrives
-  useEffect(() => {
-    if (!wsEvents.length) return
-    loadTimeline()
-  }, [wsEvents])
 
   const handleStatusUpdate = async () => {
     if (!newStatus) return
