@@ -46,7 +46,37 @@ def _get_order_or_404(order_id: int, db: Session) -> Order:
         raise HTTPException(404, "Order not found")
     return order
 
+def _serialize_event(event: OrderTrackingEvent) -> dict:
+    """Convert a SQLAlchemy OrderTrackingEvent (+ its photos) into a plain JSON-serializable dict."""
+    meta = STATUS_META.get(event.status, {})
+    return {
+        "id":             event.id,
+        "order_id":       event.order_id,
+        "status":         event.status,
+        "status_label":   meta.get("label", event.status),
+        "status_icon":    meta.get("icon", "📌"),
+        "notes":          event.notes,
+        "updated_by":     event.updated_by,
+        "whatsapp_sent":  event.whatsapp_sent,
+        "email_sent":     event.email_sent,
+        "created_at":     event.created_at.isoformat() if event.created_at else None,
+        "photos": [
+            {
+                "id":         p.id,
+                "url":        p.url,
+                "caption":    p.caption,
+                "created_at": p.created_at.isoformat() if p.created_at else None,
+            }
+            for p in (event.photos or [])
+        ],
+    }
+
+
 def _build_timeline(order: Order, events: list) -> dict:
+    # Convert raw SQLAlchemy ORM objects to plain dicts FIRST — Pydantic/FastAPI
+    # cannot serialize ORM model instances directly (causes PydanticSerializationError)
+    serialized_events = [_serialize_event(e) for e in events]
+
     current = events[-1].status if events else "order_placed"
     cur_meta = STATUS_META.get(current, {})
     current_idx = TRACKING_STATUSES.index(current) if current in TRACKING_STATUSES else 0
@@ -70,7 +100,7 @@ def _build_timeline(order: Order, events: list) -> dict:
         "current_status_label": cur_meta.get("label", current),
         "current_status_icon":  cur_meta.get("icon", "📌"),
         "customer_name":       order.customer_name,
-        "events":              events,
+        "events":              serialized_events,
         "all_statuses":        all_statuses,
     }
 
