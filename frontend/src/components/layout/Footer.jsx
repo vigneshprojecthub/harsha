@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Sparkles, Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react'
+import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -9,9 +9,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gold-gradient flex items-center justify-center">
-                <Sparkles size={18} className="text-white" />
-              </div>
+              <img src="/assets/logo-nav.png" alt="Harsha Art Gallery"
+                className="w-11 h-11 rounded-full object-cover" />
               <div>
                 <div className="font-display text-xl font-bold text-white">Harsha</div>
                 <div className="font-accent text-xs text-gold-400 tracking-widest uppercase">Art Gallery</div>
@@ -72,15 +71,15 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-2.5">
                 <Phone size={14} className="text-gold-400 mt-1 flex-shrink-0" />
-                <span className="text-sm text-ivory-300/70">+91 9344946069</span>
+                <span className="text-sm text-ivory-300/70">+91 98765 43210</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <Mail size={14} className="text-gold-400 mt-1 flex-shrink-0" />
-                <span className="text-sm text-ivory-300/70">harshaartandcrafts@gmail.com</span>
+                <span className="text-sm text-ivory-300/70">harsha@artgallery.com</span>
               </li>
               <li className="flex items-start gap-2.5">
                 <MapPin size={14} className="text-gold-400 mt-1 flex-shrink-0" />
-                <span className="text-sm text-ivory-300/70">Coimbatore, Tamil Nadu, India</span>
+                <span className="text-sm text-ivory-300/70">Chennai, Tamil Nadu, India</span>
               </li>
             </ul>
           </div>

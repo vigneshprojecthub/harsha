@@ -1,5 +1,5 @@
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingBag, MapPin, BarChart3, Tag, ArrowLeft, Sparkles, LogOut, User } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingBag, MapPin, BarChart3, Tag, ArrowLeft, LogOut, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const adminLinks = [
@@ -27,12 +27,11 @@ export default function AdminLayout() {
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-gold-gradient flex items-center justify-center">
-              <Sparkles size={14} className="text-white" />
-            </div>
+            <img src="/assets/logo-nav.png" alt="Harsha Art Gallery"
+              className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
             <span className="font-display text-white font-bold text-lg">Harsha</span>
           </div>
-          <div className="font-body text-xs text-gold-400 tracking-widest uppercase ml-10">Admin Panel</div>
+          <div className="font-body text-xs text-gold-400 tracking-widest uppercase ml-11">Admin Panel</div>
         </div>
 
         {/* Nav links */}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ShoppingCart } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import CartIcon from '../cart/CartIcon'
 import CartDrawer from '../cart/CartDrawer'
 
@@ -32,9 +32,8 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gold-gradient flex items-center justify-center">
-                <Sparkles size={15} className="text-white" />
-              </div>
+              <img src="/assets/logo-nav.png" alt="Harsha Art Gallery"
+                className="w-9 h-9 md:w-11 md:h-11 rounded-full object-cover" />
               <div>
                 <div className="font-display text-base md:text-xl font-bold text-white leading-none">Harsha</div>
                 <div className="font-accent text-[10px] text-gold-300 tracking-widest uppercase hidden sm:block">Art Gallery</div>

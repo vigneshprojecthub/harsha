@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Sparkles, Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Lock, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 export default function AdminLoginPage() {
@@ -42,9 +42,8 @@ export default function AdminLoginPage() {
         <div className="bg-charcoal-800 border border-white/10 rounded-3xl p-8 shadow-2xl shadow-black/50">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gold-gradient flex items-center justify-center mx-auto mb-4 shadow-lg shadow-gold-500/30">
-              <Sparkles size={28} className="text-white" />
-            </div>
+            <img src="/assets/logo-nav.png" alt="Harsha Art Gallery"
+              className="w-24 h-24 rounded-full object-cover mx-auto mb-4 shadow-xl shadow-gold-500/20 border-2 border-gold-500/30" />
             <h1 className="font-display text-2xl font-bold text-white mb-1">Admin Panel</h1>
             <p className="font-body text-ivory-300/40 text-sm">Harsha Art Gallery</p>
           </div>

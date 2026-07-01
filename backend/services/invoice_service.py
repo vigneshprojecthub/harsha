@@ -13,10 +13,14 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_LEFT, TA_RIGHT, TA_CENTER
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image as RLImage
 )
 from reportlab.pdfgen import canvas as rl_canvas
 
+
+# ── Logo path ────────────────────────────────────────────────────────────────
+import os as _os
+LOGO_PATH = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "assets", "logo.png")
 
 # ── Brand colours ────────────────────────────────────────────────────────────
 GOLD   = colors.HexColor("#C8860F")
@@ -129,15 +133,32 @@ def generate_invoice_pdf(
     story = []
 
     # ── Header row ────────────────────────────────────────────────────────────
-    header_data = [[
-        # Left: brand block
-        [
+    # Logo image (with fallback if file missing)
+    try:
+        logo_img = RLImage(LOGO_PATH, width=18*mm, height=18*mm)
+    except Exception:
+        logo_img = Spacer(18*mm, 18*mm)
+
+    # Brand block: logo + text side by side
+    brand_inner = Table(
+        [[logo_img, [
             Paragraph("Harsha Art Gallery", S["brand_title"]),
             Paragraph("Premium Handcrafted Embroidery", S["brand_sub"]),
             Paragraph("Chennai, Tamil Nadu, India", S["brand_sub"]),
-            Paragraph("harshaartandcrafts@gmail.com  ·  +91 9344946069", S["brand_sub"]),
+            Paragraph("harsha@artgallery.com  ·  +91 98765 43210", S["brand_sub"]),
             Paragraph("GSTIN: 33XXXXX0000X1ZX", S["brand_sub"]),
-        ],
+        ]]],
+        colWidths=[22*mm, W*0.55 - 22*mm]
+    )
+    brand_inner.setStyle(TableStyle([
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("LEFTPADDING", (0,0), (0,0), 0),
+        ("RIGHTPADDING", (0,0), (0,0), 6),
+    ]))
+
+    header_data = [[
+        # Left: brand block
+        brand_inner,
         # Right: INVOICE label + meta
         [
             Paragraph("INVOICE", S["invoice_label"]),
@@ -305,13 +326,27 @@ def generate_invoice_pdf(
             S["small"]
         ),
         Paragraph(
-            "For queries: harshaartandcrafts@gmail.com  ·  +91 9344946069",
+            "For queries: harsha@artgallery.com  ·  +91 98765 43210",
             ParagraphStyle("footer_r", parent=S["small"], alignment=TA_RIGHT)
         ),
     ]]
     footer_tbl = Table(footer_data, colWidths=[W * 0.6, W * 0.4])
     footer_tbl.setStyle(TableStyle([("VALIGN", (0,0),(-1,-1),"TOP")]))
     story.append(footer_tbl)
+    story.append(Spacer(1, 4 * mm))
+
+    # Centered logo watermark at bottom of invoice
+    try:
+        wm = RLImage(LOGO_PATH, width=20*mm, height=20*mm)
+        wm_tbl = Table([[wm]], colWidths=[W])
+        wm_tbl.setStyle(TableStyle([("ALIGN", (0,0), (0,0), "CENTER")]))
+        story.append(wm_tbl)
+        story.append(Paragraph(
+            "Harsha Art Gallery · Handmade with LOVE · Every stitch tells a story.",
+            ParagraphStyle("footer_center", parent=S["small"], alignment=TA_CENTER)
+        ))
+    except Exception:
+        pass
 
     doc.build(story)
     return f"/uploads/{filename}"
