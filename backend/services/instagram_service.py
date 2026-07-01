@@ -24,7 +24,7 @@ IG_BASE     = f"https://graph.facebook.com/{IG_VERSION}"
 
 # In-memory cache (replace with Redis in production)
 _post_cache: dict = {"data": [], "fetched_at": 0}
-CACHE_TTL = 900  # 15 minutes — Instagram signed CDN URLs expire, keep cache short
+CACHE_TTL = 600  # 10 minutes — Instagram signed CDN URLs expire quickly
 
 
 async def fetch_instagram_posts(limit: int = 24, media_type: Optional[str] = None) -> list:
@@ -142,11 +142,13 @@ async def refresh_instagram_token() -> Optional[str]:
 
 
 def _proxy_url(raw_url: str) -> str:
-    """Route an Instagram CDN URL through our backend proxy to avoid hotlink blocks/expiry."""
-    if not raw_url:
-        return raw_url
-    import urllib.parse
-    return f"/api/instagram/image-proxy?url={urllib.parse.quote(raw_url, safe='')}"
+    """
+    Return the CDN URL directly.
+    Instagram's CDN URLs work fine in <img> tags without a proxy when no
+    restrictive Referrer-Policy is set on the page.
+    The proxy approach was causing issues with Vercel's URL encoding of query params.
+    """
+    return raw_url or ""
 
 
 def clear_cache():

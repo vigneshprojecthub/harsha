@@ -21,6 +21,8 @@ function PostThumb({ post, index }) {
             src={post.media_url}
             alt=""
             loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            crossOrigin={undefined}
             onError={() => setImgError(true)}
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
