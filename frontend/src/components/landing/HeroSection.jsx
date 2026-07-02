@@ -81,7 +81,7 @@ function SpinningLogo() {
 export default function HeroSection() {
   return (
     <section className="relative flex items-center overflow-hidden bg-charcoal-900
-      pt-20 pb-8 md:pt-28 md:pb-12 min-h-[60vh] md:min-h-[70vh]">
+      pt-20 pb-6 md:pt-24 md:pb-8">
 
       {/* Subtle fabric texture */}
       <div className="absolute inset-0 opacity-10"
