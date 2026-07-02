@@ -137,7 +137,7 @@ export default function HeroSection() {
             {/* Stats row */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
-              className="flex gap-6 mt-8 pt-6 border-t border-white/10">
+              className="flex gap-6 mt-5 pt-5 border-t border-white/10">
               {[['500+','Pieces'],['12+','Years'],['100%','Handmade']].map(([n,l]) => (
                 <div key={l}>
                   <div className="font-display text-lg font-bold text-gold-400">{n}</div>
